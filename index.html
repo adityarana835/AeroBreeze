@@ -1,0 +1,1730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AeroBreeze Pocket — Beat 45°C Heat with Nano-Mist Cooling</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ==========================================================================
+       Design Tokens & Dynamic Variables
+       ========================================================================== */
+    :root {
+      --primary-accent: #06b6d4;
+      --primary-glow: rgba(6, 182, 212, 0.4);
+      --cyan-mint: #0ea5e9;
+      --bg-main: #f8fafc;
+      --bg-card: rgba(255, 255, 255, 0.75);
+      --text-dark: #0f172a;
+      --text-muted: #64748b;
+      --border-light: rgba(226, 232, 240, 0.8);
+      --glass-bg: rgba(255, 255, 255, 0.7);
+      --font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      
+      /* Dynamic Physics Variables Controlled via JS */
+      --device-accent: #06b6d4;
+      --device-glow: rgba(6, 182, 212, 0.35);
+      --spin-duration: 1.2s;
+      --blade-blur: 0.5px;
+      --wind-opacity: 0.25;
+      --mist-opacity: 0.4;
+      --mist-speed: 2.4s;
+      --rim-glow: 0.2;
+    }
+
+    /* ==========================================================================
+       Global Resets & Base Typography
+       ========================================================================== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-family: var(--font-family);
+      background-color: var(--bg-main);
+      color: var(--text-dark);
+    }
+
+    body {
+      overflow-x: hidden;
+    }
+
+    .section-padding {
+      padding: 100px 24px;
+    }
+
+    .section-header {
+      text-align: center;
+      max-width: 680px;
+      margin: 0 auto 60px auto;
+    }
+
+    .sub-title {
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 1.5px;
+      font-weight: 700;
+      color: var(--primary-accent);
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .section-header h2 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+      color: var(--text-dark);
+    }
+
+    .section-header p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      line-height: 1.6;
+    }
+
+    /* ==========================================================================
+       Buttons
+       ========================================================================== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 28px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .btn-sm {
+      padding: 8px 18px;
+      font-size: 0.85rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary-accent), var(--cyan-mint));
+      color: #fff;
+      box-shadow: 0 8px 20px -4px var(--primary-glow);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px -4px var(--primary-glow);
+    }
+
+    .btn-secondary {
+      background: var(--glass-bg);
+      border: 1px solid var(--border-light);
+      color: var(--text-dark);
+      backdrop-filter: blur(8px);
+    }
+
+    .btn-secondary:hover {
+      background: #ffffff;
+      border-color: #cbd5e1;
+    }
+
+    .btn-block {
+      width: 100%;
+    }
+
+    /* ==========================================================================
+       Navigation Bar
+       ========================================================================== */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(248, 250, 252, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-weight: 700;
+      font-size: 1.25rem;
+      text-decoration: none;
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-icon {
+      color: var(--primary-accent);
+      font-size: 1.4rem;
+    }
+
+    .logo span {
+      color: var(--primary-accent);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--text-muted);
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--primary-accent);
+    }
+
+    /* ==========================================================================
+       Hero Section & Interactive Visualizer
+       ========================================================================== */
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 80px 24px 100px;
+      background: radial-gradient(circle at 80% 20%, var(--device-glow) 0%, rgba(248, 250, 252, 0) 60%);
+      transition: background 0.5s ease;
+    }
+
+    .hero-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      align-items: center;
+      gap: 60px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(6, 182, 212, 0.1);
+      color: var(--primary-accent);
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 6px 14px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background-color: var(--primary-accent);
+      border-radius: 50%;
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(6, 182, 212, 0); }
+      100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(6, 182, 212, 0); }
+    }
+
+    .hero h1 {
+      font-size: 3.4rem;
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-bottom: 20px;
+    }
+
+    .hero p {
+      color: var(--text-muted);
+      font-size: 1.15rem;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+
+    /* Color & Speed Widgets */
+    .color-picker-widget,
+    .speed-controller-widget {
+      background: var(--glass-bg);
+      border: 1px solid var(--border-light);
+      backdrop-filter: blur(12px);
+      padding: 16px 20px;
+      border-radius: 16px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .widget-label {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .widget-label strong {
+      color: var(--text-dark);
+    }
+
+    .swatches {
+      display: flex;
+      gap: 12px;
+    }
+
+    .swatch {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      background-color: var(--swatch-color);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      cursor: pointer;
+      transition: transform 0.2s, outline 0.2s;
+      outline: 2px solid transparent;
+    }
+
+    .swatch.active {
+      outline: 2px solid var(--primary-accent);
+      transform: scale(1.15);
+    }
+
+    .speed-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .speed-btn {
+      background: #fff;
+      border: 1px solid var(--border-light);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .speed-btn.active {
+      background: var(--text-dark);
+      color: #fff;
+      border-color: var(--text-dark);
+    }
+
+    .hero-cta-group {
+      display: flex;
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    /* ==========================================================================
+       Advanced Fan Animation & Visualizer Engine
+       ========================================================================== */
+    .hero-visualizer {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .device-stage {
+      position: relative;
+      width: 320px;
+      height: 480px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .wind-aura {
+      position: absolute;
+      top: 15px;
+      width: 270px;
+      height: 270px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--device-glow) 0%, rgba(255, 255, 255, 0) 70%);
+      opacity: var(--wind-opacity);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      z-index: 1;
+      animation: pulse-airflow 1.4s ease-in-out infinite;
+    }
+
+    @keyframes pulse-airflow {
+      0% {
+        transform: scale(0.96);
+        filter: drop-shadow(0 0 10px var(--device-glow));
+      }
+      50% {
+        transform: scale(1.08);
+        filter: drop-shadow(0 0 25px var(--device-glow));
+      }
+      100% {
+        transform: scale(0.96);
+        filter: drop-shadow(0 0 10px var(--device-glow));
+      }
+    }
+
+    .mist-particle-layer {
+      position: absolute;
+      top: 90px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 140px;
+      height: 180px;
+      pointer-events: none;
+      z-index: 3;
+      overflow: visible;
+      opacity: var(--mist-opacity);
+      transition: opacity 0.4s ease;
+    }
+
+    .mist-plume {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, var(--device-accent) 60%, rgba(255,255,255,0) 80%);
+      filter: blur(6px);
+      transform: translateX(-50%);
+      animation: vapor-drift var(--mist-speed) cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+    }
+
+    .mist-plume:nth-child(2) { animation-delay: 0.35s; }
+    .mist-plume:nth-child(3) { animation-delay: 0.7s; }
+    .mist-plume:nth-child(4) { animation-delay: 1.05s; }
+
+    @keyframes vapor-drift {
+      0% {
+        opacity: 0.9;
+        transform: translateX(-50%) translateY(0) scale(0.4);
+        filter: blur(2px);
+      }
+      50% {
+        opacity: 0.6;
+        transform: translateX(calc(-50% + 15px)) translateY(-80px) scale(3.5);
+        filter: blur(10px);
+      }
+      100% {
+        opacity: 0;
+        transform: translateX(calc(-50% - 25px)) translateY(-160px) scale(6.5);
+        filter: blur(18px);
+      }
+    }
+
+    .fan-mockup {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .fan-head {
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 6px solid #e2e8f0;
+      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.12), inset 0 2px 8px rgba(0,0,0,0.05);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      transform-style: preserve-3d;
+      animation: aero-hover 3.2s ease-in-out infinite alternate;
+    }
+
+    @keyframes aero-hover {
+      0% { transform: rotateX(2.5deg) rotateY(-2deg) translateY(0px); }
+      100% { transform: rotateX(-3deg) rotateY(3deg) translateY(-5px); }
+    }
+
+    .fan-rim {
+      width: 190px;
+      height: 190px;
+      border-radius: 50%;
+      background: #f1f5f9;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .fan-rim::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      box-shadow: inset 0 0 14px var(--device-accent);
+      opacity: var(--rim-glow);
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+
+    .fan-rotator {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      animation: spin-blades var(--spin-duration) linear infinite;
+      filter: blur(var(--blade-blur));
+      transition: filter 0.3s ease;
+      will-change: transform, filter;
+    }
+
+    @keyframes spin-blades {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .blade {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 28px;
+      height: 75px;
+      background: var(--device-accent);
+      border-radius: 50% 50% 10px 10px;
+      transform-origin: 50% 0%;
+      opacity: 0.85;
+      transition: background-color 0.4s ease;
+    }
+
+    .blade-1 { transform: rotate(0deg); }
+    .blade-2 { transform: rotate(90deg); }
+    .blade-3 { transform: rotate(180deg); }
+    .blade-4 { transform: rotate(270deg); }
+
+    .blade-hub {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 44px;
+      height: 44px;
+      background: #fff;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .mist-nozzle {
+      position: absolute;
+      bottom: 8px;
+      width: 10px;
+      height: 10px;
+      background: #06b6d4;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #06b6d4;
+    }
+
+    .fan-neck {
+      width: 20px;
+      height: 18px;
+      background: #cbd5e1;
+    }
+
+    .fan-body {
+      width: 54px;
+      height: 140px;
+      background: #ffffff;
+      border: 4px solid #e2e8f0;
+      border-radius: 28px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 0;
+      position: relative;
+    }
+
+    .status-led {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--device-accent);
+      box-shadow: 0 0 8px var(--device-accent);
+      transition: background-color 0.4s;
+    }
+
+    .fan-controls-dummy {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #f1f5f9;
+      border: 2px solid #e2e8f0;
+      margin-top: auto;
+    }
+
+    .fan-stand {
+      width: 100px;
+      height: 10px;
+      background: #e2e8f0;
+      border-radius: 6px;
+      margin-top: 4px;
+    }
+
+    /* ==========================================================================
+       Features Cards
+       ========================================================================== */
+    .features {
+      background-color: #ffffff;
+    }
+
+    .features-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 30px;
+    }
+
+    .feature-card {
+      padding: 36px 28px;
+      background: var(--bg-main);
+      border-radius: 20px;
+      border: 1px solid var(--border-light);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 30px -10px rgba(0,0,0,0.06);
+    }
+
+    .feature-icon {
+      font-size: 2.2rem;
+      margin-bottom: 20px;
+    }
+
+    .feature-card h3 {
+      font-size: 1.25rem;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+
+    .feature-card p {
+      color: var(--text-muted);
+      line-height: 1.6;
+      font-size: 0.95rem;
+    }
+
+    /* ==========================================================================
+       Comparison Table
+       ========================================================================== */
+    .comparison {
+      background: var(--bg-main);
+    }
+
+    .table-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+      overflow: hidden;
+      border: 1px solid var(--border-light);
+    }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .comparison-table th, 
+    .comparison-table td {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border-light);
+      font-size: 0.95rem;
+    }
+
+    .comparison-table th {
+      background-color: #f1f5f9;
+      font-weight: 600;
+    }
+
+    .comparison-table th.highlight,
+    .comparison-table td.highlight {
+      background-color: rgba(6, 182, 212, 0.05);
+      color: var(--primary-accent);
+    }
+
+    /* ==========================================================================
+       Pre-Order / Checkout Card & Student Discount Additions
+       ========================================================================== */
+    .order-section {
+      background: #ffffff;
+    }
+
+    .checkout-card {
+      max-width: 580px;
+      margin: 0 auto;
+      background: #ffffff;
+      border: 1px solid var(--border-light);
+      border-radius: 24px;
+      padding: 36px;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.07);
+    }
+
+    .tier-selector {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .tier-option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 2px solid var(--border-light);
+      padding: 16px 20px;
+      border-radius: 14px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s;
+    }
+
+    .tier-option input[type="radio"] {
+      display: none;
+    }
+
+    .tier-option.active {
+      border-color: var(--primary-accent);
+      background: rgba(6, 182, 212, 0.03);
+    }
+
+    .tier-title {
+      display: block;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .tier-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .tier-price {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .badge-saving {
+      position: absolute;
+      top: -10px;
+      right: 20px;
+      background: #10b981;
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    /* Student Discount Toggle Box */
+    .student-discount-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #f0fdf4;
+      border: 1.5px dashed #10b981;
+      padding: 14px 18px;
+      border-radius: 14px;
+      margin-bottom: 20px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .student-discount-box input[type="checkbox"] {
+      accent-color: #10b981;
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .student-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .student-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #065f46;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .student-sub {
+      font-size: 0.8rem;
+      color: #047857;
+    }
+
+    /* Verification Sub-panel */
+    .student-verify-card {
+      display: none;
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 24px;
+    }
+
+    .student-verify-card.open {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .verify-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .verify-header h4 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .verify-badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .verify-badge.verified {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .verify-methods {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .verify-tab-btn {
+      flex: 1;
+      padding: 7px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border-light);
+      background: #ffffff;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+
+    .verify-tab-btn.active {
+      background: var(--text-dark);
+      color: #ffffff;
+      border-color: var(--text-dark);
+    }
+
+    .verify-method-content {
+      display: none;
+    }
+
+    .verify-method-content.active {
+      display: block;
+    }
+
+    .verify-input-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .verify-input-group input {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      font-size: 0.85rem;
+    }
+
+    .verify-input-group input:focus {
+      outline: none;
+      border-color: var(--primary-accent);
+    }
+
+    .btn-verify-action {
+      padding: 10px 16px;
+      background: var(--primary-accent);
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.2s;
+    }
+
+    .btn-verify-action:hover {
+      opacity: 0.9;
+    }
+
+    .upload-zone {
+      border: 1.5px dashed #cbd5e1;
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .upload-zone:hover {
+      border-color: var(--primary-accent);
+    }
+
+    .upload-zone input {
+      display: none;
+    }
+
+    .upload-zone-text {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .upload-zone-text strong {
+      color: var(--primary-accent);
+    }
+
+    .verify-status-msg {
+      margin-top: 10px;
+      font-size: 0.8rem;
+      color: #b91c1c;
+      font-weight: 500;
+    }
+
+    .verify-status-msg.success {
+      color: #15803d;
+    }
+
+    .order-configuration {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 0;
+      border-top: 1px solid var(--border-light);
+      border-bottom: 1px solid var(--border-light);
+      margin-bottom: 28px;
+    }
+
+    .qty-control {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .counter {
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      background: var(--bg-main);
+    }
+
+    .counter button {
+      background: none;
+      border: none;
+      padding: 6px 14px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .counter span {
+      padding: 0 10px;
+      font-weight: 700;
+    }
+
+    .total-display {
+      text-align: right;
+    }
+
+    .total-display span {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .price-wrap {
+      display: flex;
+      align-items: baseline;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .original-price-strike {
+      font-size: 1rem;
+      color: var(--text-muted);
+      text-decoration: line-through;
+      display: none;
+    }
+
+    .total-display .total-price {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .form-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .form-row input {
+      flex: 1;
+      padding: 14px;
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 0.95rem;
+    }
+
+    .form-row input:focus {
+      outline: none;
+      border-color: var(--primary-accent);
+    }
+
+    /* ==========================================================================
+       Footer
+       ========================================================================== */
+    .footer {
+      background: var(--text-dark);
+      color: #fff;
+      padding: 60px 24px 30px;
+    }
+
+    .footer-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 40px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .footer-brand p {
+      color: #94a3b8;
+      font-size: 0.9rem;
+      margin-top: 10px;
+      max-width: 320px;
+    }
+
+    .footer-badges {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      font-size: 0.9rem;
+      color: #cbd5e1;
+    }
+
+    .footer-bottom {
+      max-width: 1200px;
+      margin: 30px auto 0;
+      text-align: center;
+      color: #64748b;
+      font-size: 0.85rem;
+    }
+
+    /* ==========================================================================
+       Toast Modal
+       ========================================================================== */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #ffffff;
+      border-radius: 14px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+      border: 1px solid var(--border-light);
+      padding: 16px 20px;
+      z-index: 2000;
+      transform: translateY(150%);
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .toast.show {
+      transform: translateY(0);
+    }
+
+    .toast-content {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .toast-icon {
+      background: #10b981;
+      color: #fff;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+
+    .toast h4 {
+      font-size: 0.95rem;
+      color: var(--text-dark);
+    }
+
+    .toast p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* ==========================================================================
+       Responsive Adaptations
+       ========================================================================== */
+    @media (max-width: 900px) {
+      .hero-container {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      .hero h1 {
+        font-size: 2.6rem;
+      }
+      .color-picker-widget, 
+      .speed-controller-widget {
+        flex-direction: column;
+        gap: 12px;
+      }
+      .hero-cta-group {
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .form-row {
+        flex-direction: column;
+      }
+      .nav-links a:not(.btn) {
+        display: none;
+      }
+      .verify-input-group {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky Navigation -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="#" class="logo">
+        <span class="logo-icon">༄</span> Aero<span>Breeze</span>
+      </a>
+      <nav class="nav-links">
+        <a href="#features">Tech Specs</a>
+        <a href="#interactive-demo">Live Simulator</a>
+        <a href="#comparison">Why Us</a>
+        <a href="#order" class="btn btn-sm btn-primary">Order Now</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero" id="interactive-demo">
+    <div class="hero-container">
+      <div class="hero-content">
+        <div class="badge">
+          <span class="pulse-dot"></span> Built for Indian Summers • Nano-Mist Tech
+        </div>
+        <h1>Your Personal Monsoon, Right in Your Pocket.</h1>
+        <p>Tired of scorching metro platforms and sticky cab rides? Experience 18dB silent magnetic airflow and ultrasonic mist that slashes ambient heat instantly.</p>
+
+        <!-- Interactive Color Switcher -->
+        <div class="color-picker-widget">
+          <span class="widget-label">Finish: <strong id="colorName">Monsoon Teal</strong></span>
+          <div class="swatches">
+            <button class="swatch active" data-color="monsoon-teal" data-name="Monsoon Teal" style="--swatch-color: #06b6d4;" title="Monsoon Teal"></button>
+            <button class="swatch" data-color="ladakh-white" data-name="Ladakh White" style="--swatch-color: #f8fafc;" title="Ladakh White"></button>
+            <button class="swatch" data-color="obsidian-black" data-name="Obsidian Black" style="--swatch-color: #1e293b;" title="Obsidian Black"></button>
+            <button class="swatch" data-color="jaipur-rose" data-name="Jaipur Rose" style="--swatch-color: #f43f5e;" title="Jaipur Rose"></button>
+          </div>
+        </div>
+
+        <!-- Interactive Speed Controller -->
+        <div class="speed-controller-widget">
+          <span class="widget-label">Airflow Intensity:</span>
+          <div class="speed-buttons">
+            <button class="speed-btn" data-speed="off">Off</button>
+            <button class="speed-btn active" data-speed="gentle">1 • Calm Air</button>
+            <button class="speed-btn" data-speed="breeze">2 • Sea Breeze</button>
+            <button class="speed-btn" data-speed="turbo">3 • Monsoon Gust</button>
+          </div>
+        </div>
+
+        <div class="hero-cta-group">
+          <a href="#order" class="btn btn-primary" id="heroCtaBtn">Get Yours at ₹499</a>
+          <a href="#features" class="btn btn-secondary">Explore Architecture</a>
+        </div>
+      </div>
+
+      <!-- Live Mockup Visualizer -->
+      <div class="hero-visualizer">
+        <div class="device-stage" id="deviceStage">
+          <!-- Dynamic Shockwave Wind Aura -->
+          <div class="wind-aura" id="windAura"></div>
+
+          <!-- Ultrasonic Mist Dispersal Plumes -->
+          <div class="mist-particle-layer" id="mistLayer">
+            <div class="mist-plume"></div>
+            <div class="mist-plume"></div>
+            <div class="mist-plume"></div>
+            <div class="mist-plume"></div>
+          </div>
+
+          <!-- Pure CSS 3D Fan Mockup -->
+          <div class="fan-mockup" id="fanMockup">
+            <div class="fan-head">
+              <div class="fan-rim">
+                <div class="fan-rotator" id="fanBlades">
+                  <div class="blade blade-1"></div>
+                  <div class="blade blade-2"></div>
+                  <div class="blade blade-3"></div>
+                  <div class="blade blade-4"></div>
+                  <div class="blade-hub"></div>
+                </div>
+                <div class="mist-nozzle" title="Nano-Mist Diffuser"></div>
+              </div>
+            </div>
+            <div class="fan-neck"></div>
+            <div class="fan-body">
+              <div class="status-led" id="statusLed"></div>
+              <div class="fan-controls-dummy"></div>
+            </div>
+            <div class="fan-stand"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Grid -->
+  <section id="features" class="features section-padding">
+    <div class="section-header">
+      <span class="sub-title">Engineered Against The 45°C Wave</span>
+      <h2>Pocket Precision. Zero Sweat.</h2>
+      <p>Designed specifically to counter dry heat, dense commutes, and power cuts without missing a beat.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🤫</div>
+        <h3>Whisper Silent (&lt;18dB)</h3>
+        <p>Mag-lev brushless motor lets you stay chilled during Zoom calls, library study, or bedroom naps with no drone.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔋</div>
+        <h3>48-Hour Battery & Powerbank</h3>
+        <p>Packed with a 5,000mAh solid battery cell. Reverse USB-C charging fuels your smartphone during long commutes.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📐</div>
+        <h3>180° Swivel Workstation Base</h3>
+        <p>Flips effortlessly from handheld street relief into a sturdy, tilt-adjustable work desk chiller.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💧</div>
+        <h3>Ultrasonic Nano-Mist</h3>
+        <p>10-micron hydration drops skin temperature by up to 7°C instantly without soaking your clothes or glasses.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Comparison Section -->
+  <section id="comparison" class="comparison section-padding">
+    <div class="section-header">
+      <span class="sub-title">The Real Performance Test</span>
+      <h2>Roadside Cheap Fans vs. AeroBreeze</h2>
+    </div>
+    <div class="table-container">
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th class="highlight">AeroBreeze Pocket</th>
+            <th>Generic Plastic Fans</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Sound Output</td>
+            <td class="highlight"><strong>18 dB</strong> (Barely Audible)</td>
+            <td>55–68 dB (Loud Motor Buzz)</td>
+          </tr>
+          <tr>
+            <td>Endurance</td>
+            <td class="highlight"><strong>Up to 48 Hours</strong></td>
+            <td>2–3 Hours</td>
+          </tr>
+          <tr>
+            <td>Cooling Method</td>
+            <td class="highlight"><strong>Ultrasonic Nano-Mist</strong></td>
+            <td>Pushes warm air only</td>
+          </tr>
+          <tr>
+            <td>Dual Purpose</td>
+            <td class="highlight"><strong>Cooler + 5000mAh Powerbank</strong></td>
+            <td>Fan only</td>
+          </tr>
+          <tr>
+            <td>Warranty</td>
+            <td class="highlight"><strong>1-Year Doorstep Replacement</strong></td>
+            <td>None / No Support</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Pre-Order / Purchase Section -->
+  <section id="order" class="order-section section-padding">
+    <div class="section-header">
+      <span class="sub-title">Launch Day Pricing</span>
+      <h2>Get Your AeroBreeze Pocket</h2>
+      <p>Pan-India Express Delivery (2–4 Days). Cash on Delivery & UPI available at checkout.</p>
+    </div>
+
+    <div class="checkout-card">
+      <div class="tier-selector">
+        <label class="tier-option active" data-pack="single" data-price="499">
+          <input type="radio" name="packOption" value="single" checked>
+          <div class="tier-info">
+            <span class="tier-title">Single Pack — Solo Chiller</span>
+            <span class="tier-desc">1x AeroBreeze + Premium Lanyard + Braided Type-C Cable</span>
+          </div>
+          <span class="tier-price">₹499</span>
+        </label>
+
+        <label class="tier-option" data-pack="duo" data-price="899">
+          <div class="badge-saving">Save ₹99</div>
+          <input type="radio" name="packOption" value="duo">
+          <div class="tier-info">
+            <span class="tier-title">Duo Travel Pack — Couple / Friends</span>
+            <span class="tier-desc">2x AeroBreeze + 2 Protective Cases + 2 Braided Cables</span>
+          </div>
+          <span class="tier-price">₹899</span>
+        </label>
+      </div>
+
+      <!-- Student Discount Checkbox -->
+      <label class="student-discount-box" for="studentCheck">
+        <input type="checkbox" id="studentCheck">
+        <div class="student-info">
+          <span class="student-title">🎓 Apply Student ID Discount (Flat 10% Off)</span>
+          <span class="student-sub">Requires one-time ID verification below</span>
+        </div>
+      </label>
+
+      <!-- Student Verification Drawer -->
+      <div class="student-verify-card" id="studentVerifyCard">
+        <div class="verify-header">
+          <h4>🪪 Student Verification</h4>
+          <span class="verify-badge" id="verifyBadge">Pending Verification</span>
+        </div>
+
+        <div class="verify-methods">
+          <button type="button" class="verify-tab-btn active" data-tab="emailTab">Institutional Email</button>
+          <button type="button" class="verify-tab-btn" data-tab="uploadTab">Upload College ID</button>
+        </div>
+
+        <!-- Method 1: Email -->
+        <div class="verify-method-content active" id="emailTab">
+          <div class="verify-input-group">
+            <input type="email" id="eduEmailInput" placeholder="e.g. rollno@college.edu.in / .ac.in" />
+            <button type="button" class="btn-verify-action" id="btnVerifyEmail">Verify Email</button>
+          </div>
+        </div>
+
+        <!-- Method 2: ID Card Upload -->
+        <div class="verify-method-content" id="uploadTab">
+          <label class="upload-zone" for="studentIdFile">
+            <input type="file" id="studentIdFile" accept="image/*,.pdf" />
+            <div class="upload-zone-text" id="uploadZoneText">
+              📄 Click or drag to <strong>Upload Student ID</strong> (.jpg, .png, .pdf)
+            </div>
+          </label>
+        </div>
+
+        <p class="verify-status-msg" id="verifyStatusMsg"></p>
+      </div>
+
+      <div class="order-configuration">
+        <div class="qty-control">
+          <span>Quantity:</span>
+          <div class="counter">
+            <button type="button" id="qtyMinus">−</button>
+            <span id="qtyVal">1</span>
+            <button type="button" id="qtyPlus">+</button>
+          </div>
+        </div>
+
+        <div class="total-display">
+          <span>Final Price (Incl. GST):</span>
+          <div class="price-wrap">
+            <span class="original-price-strike" id="originalPriceStrike"></span>
+            <span class="total-price" id="totalPrice">₹499</span>
+          </div>
+        </div>
+      </div>
+
+      <form id="preorderForm" class="checkout-form">
+        <div class="form-row">
+          <input type="text" id="custName" placeholder="Full Name" required />
+          <input type="tel" id="custPhone" placeholder="Mobile Number (for tracking)" required />
+        </div>
+        <div class="form-row">
+          <input type="text" id="custPin" placeholder="Delivery Pincode" maxlength="6" required />
+          <input type="email" id="custEmail" placeholder="Email Address" required />
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Book with Free Pan-India Delivery</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <span class="logo-icon">༄</span> AeroBreeze Pocket
+        <p>Engineered micro-climate hardware built for everyday urban Indian mobility.</p>
+      </div>
+      <div class="footer-badges">
+        <span>🇮🇳 Free Express Shipping Across India</span>
+        <span>🛡️ 1-Year Doorstep Replacement Warranty</span>
+        <span>⚡ BIS & CE Certified 5,000mAh Battery</span>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 AeroBreeze India Labs. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Toast Notification Modal -->
+  <div class="toast" id="orderToast">
+    <div class="toast-content">
+      <div class="toast-icon">✓</div>
+      <div>
+        <h4 id="toastTitle">Order Confirmed!</h4>
+        <p id="toastMessage">Tracking details will be shared on WhatsApp & Email.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+      /* --------------------------------------------------------------------------
+         1. Interactive Velocity, Motion-Blur & Mist Engine
+         -------------------------------------------------------------------------- */
+      const speedButtons = document.querySelectorAll('.speed-btn');
+      const fanBlades = document.getElementById('fanBlades');
+      const root = document.documentElement;
+
+      const speedConfigs = {
+        off: {
+          duration: '0s',
+          blur: '0px',
+          windOpacity: '0',
+          mistOpacity: '0',
+          rimGlow: '0',
+          playing: 'paused'
+        },
+        gentle: {
+          duration: '1.2s',
+          blur: '0.5px',
+          windOpacity: '0.25',
+          mistOpacity: '0.4',
+          mistSpeed: '2.4s',
+          rimGlow: '0.2',
+          playing: 'running'
+        },
+        breeze: {
+          duration: '0.5s',
+          blur: '2px',
+          windOpacity: '0.6',
+          mistOpacity: '0.75',
+          mistSpeed: '1.6s',
+          rimGlow: '0.5',
+          playing: 'running'
+        },
+        turbo: {
+          duration: '0.12s',
+          blur: '5px',
+          windOpacity: '0.95',
+          mistOpacity: '1',
+          mistSpeed: '0.9s',
+          rimGlow: '0.9',
+          playing: 'running'
+        }
+      };
+
+      speedButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          speedButtons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          const speed = btn.getAttribute('data-speed');
+          const config = speedConfigs[speed];
+
+          fanBlades.style.animationPlayState = config.playing;
+          fanBlades.style.animationDuration = config.duration;
+
+          root.style.setProperty('--blade-blur', config.blur);
+          root.style.setProperty('--wind-opacity', config.windOpacity);
+          root.style.setProperty('--mist-opacity', config.mistOpacity);
+          root.style.setProperty('--rim-glow', config.rimGlow);
+          if (config.mistSpeed) {
+            root.style.setProperty('--mist-speed', config.mistSpeed);
+          }
+        });
+      });
+
+      /* --------------------------------------------------------------------------
+         2. Color Variant Switcher
+         -------------------------------------------------------------------------- */
+      const swatches = document.querySelectorAll('.swatch');
+      const colorNameLabel = document.getElementById('colorName');
+
+      const colorMap = {
+        'monsoon-teal': { hex: '#06b6d4', glow: 'rgba(6, 182, 212, 0.4)' },
+        'ladakh-white': { hex: '#ffffff', glow: 'rgba(255, 255, 255, 0.45)' },
+        'obsidian-black': { hex: '#0f172a', glow: 'rgba(15, 23, 42, 0.3)' },
+        'jaipur-rose': { hex: '#f43f5e', glow: 'rgba(244, 63, 94, 0.35)' }
+      };
+
+      swatches.forEach((swatch) => {
+        swatch.addEventListener('click', () => {
+          swatches.forEach(s => s.classList.remove('active'));
+          swatch.classList.add('active');
+
+          const colorKey = swatch.getAttribute('data-color');
+          const colorLabel = swatch.getAttribute('data-name');
+          const targetColors = colorMap[colorKey];
+
+          colorNameLabel.textContent = colorLabel;
+          root.style.setProperty('--device-accent', targetColors.hex);
+          root.style.setProperty('--device-glow', targetColors.glow);
+        });
+      });
+
+      /* --------------------------------------------------------------------------
+         3. Dynamic Pricing, Qty, & Student Verification System
+         -------------------------------------------------------------------------- */
+      let unitPrice = 499;
+      let quantity = 1;
+      let isStudentVerified = false;
+
+      const tierOptions = document.querySelectorAll('.tier-option');
+      const qtyValDisplay = document.getElementById('qtyVal');
+      const qtyMinus = document.getElementById('qtyMinus');
+      const qtyPlus = document.getElementById('qtyPlus');
+      const totalPriceDisplay = document.getElementById('totalPrice');
+      const originalPriceStrike = document.getElementById('originalPriceStrike');
+      
+      const studentCheckbox = document.getElementById('studentCheck');
+      const studentVerifyCard = document.getElementById('studentVerifyCard');
+      const verifyBadge = document.getElementById('verifyBadge');
+      const verifyStatusMsg = document.getElementById('verifyStatusMsg');
+      const eduEmailInput = document.getElementById('eduEmailInput');
+      const btnVerifyEmail = document.getElementById('btnVerifyEmail');
+      const studentIdFile = document.getElementById('studentIdFile');
+      const uploadZoneText = document.getElementById('uploadZoneText');
+      const tabBtns = document.querySelectorAll('.verify-tab-btn');
+
+      function updateOrderTotal() {
+        const subtotal = unitPrice * quantity;
+        if (studentCheckbox.checked && isStudentVerified) {
+          const discounted = Math.round(subtotal * 0.9);
+          originalPriceStrike.style.display = 'inline';
+          originalPriceStrike.textContent = `₹${subtotal.toLocaleString('en-IN')}`;
+          totalPriceDisplay.textContent = `₹${discounted.toLocaleString('en-IN')}`;
+        } else {
+          originalPriceStrike.style.display = 'none';
+          totalPriceDisplay.textContent = `₹${subtotal.toLocaleString('en-IN')}`;
+        }
+      }
+
+      tierOptions.forEach((option) => {
+        option.addEventListener('click', () => {
+          tierOptions.forEach(opt => opt.classList.remove('active'));
+          option.classList.add('active');
+
+          const radio = option.querySelector('input[type="radio"]');
+          if (radio) radio.checked = true;
+
+          unitPrice = parseInt(option.getAttribute('data-price'), 10);
+          updateOrderTotal();
+        });
+      });
+
+      // Show/hide verification box
+      studentCheckbox.addEventListener('change', () => {
+        if (studentCheckbox.checked) {
+          studentVerifyCard.classList.add('open');
+          if (!isStudentVerified) {
+            verifyStatusMsg.className = 'verify-status-msg';
+            verifyStatusMsg.textContent = 'Please verify your student credentials to unlock the 10% discount.';
+          }
+        } else {
+          studentVerifyCard.classList.remove('open');
+        }
+        updateOrderTotal();
+      });
+
+      // Verification Tabs (Email vs Upload)
+      tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          tabBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          document.querySelectorAll('.verify-method-content').forEach(c => c.classList.remove('active'));
+          document.getElementById(btn.getAttribute('data-tab')).classList.add('active');
+        });
+      });
+
+      function markStudentVerified(detail) {
+        isStudentVerified = true;
+        verifyBadge.classList.add('verified');
+        verifyBadge.textContent = '✓ Verified';
+        verifyStatusMsg.className = 'verify-status-msg success';
+        verifyStatusMsg.textContent = `Success: Verified via ${detail}. 10% discount applied!`;
+        updateOrderTotal();
+      }
+
+      // Verification via Academic Email
+      btnVerifyEmail.addEventListener('click', () => {
+        const email = eduEmailInput.value.trim().toLowerCase();
+        const validEduPatterns = ['.edu', '.ac.in', '.edu.in', '.res.in', 'student'];
+        const isAcademic = validEduPatterns.some(domain => email.includes(domain));
+
+        if (email && email.includes('@') && isAcademic) {
+          markStudentVerified(email);
+        } else {
+          verifyStatusMsg.className = 'verify-status-msg';
+          verifyStatusMsg.textContent = 'Invalid educational email. Must include .edu, .ac.in, or university domain.';
+        }
+      });
+
+      // Verification via File Upload
+      studentIdFile.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          uploadZoneText.innerHTML = `✅ Uploaded: <strong>${file.name}</strong>`;
+          markStudentVerified('ID Card Upload');
+        }
+      });
+
+      qtyMinus.addEventListener('click', () => {
+        if (quantity > 1) {
+          quantity--;
+          qtyValDisplay.textContent = quantity;
+          updateOrderTotal();
+        }
+      });
+
+      qtyPlus.addEventListener('click', () => {
+        if (quantity < 10) {
+          quantity++;
+          qtyValDisplay.textContent = quantity;
+          updateOrderTotal();
+        }
+      });
+
+      /* --------------------------------------------------------------------------
+         4. Form Submission & Confirmation Toast
+         -------------------------------------------------------------------------- */
+      const preorderForm = document.getElementById('preorderForm');
+      const toast = document.getElementById('orderToast');
+      const toastTitle = document.getElementById('toastTitle');
+      const toastMessage = document.getElementById('toastMessage');
+
+      preorderForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        if (studentCheckbox.checked && !isStudentVerified) {
+          alert('Please verify your student status using your institutional email or ID upload before booking with student discount.');
+          studentVerifyCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
+
+        const name = document.getElementById('custName').value.trim();
+        const phone = document.getElementById('custPhone').value.trim();
+
+        if (!name || !phone) return;
+
+        toastTitle.textContent = `Booking Confirmed for ${name}!`;
+        toastMessage.textContent = isStudentVerified 
+          ? `Verified student discount active. Details sent to +91 ${phone.slice(-10)}.`
+          : `Order placed. Tracking link sent to +91 ${phone.slice(-10)}.`;
+
+        toast.classList.add('show');
+        preorderForm.reset();
+
+        quantity = 1;
+        qtyValDisplay.textContent = 1;
+        studentCheckbox.checked = false;
+        studentVerifyCard.classList.remove('open');
+        isStudentVerified = false;
+        verifyBadge.classList.remove('verified');
+        verifyBadge.textContent = 'Pending Verification';
+        uploadZoneText.innerHTML = `📄 Click or drag to <strong>Upload Student ID</strong> (.jpg, .png, .pdf)`;
+        verifyStatusMsg.textContent = '';
+        updateOrderTotal();
+
+        setTimeout(() => {
+          toast.classList.remove('show');
+        }, 4500);
+      });
+    });
+  </script>
+</body>
+</html>
